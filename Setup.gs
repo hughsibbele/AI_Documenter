@@ -36,9 +36,10 @@ function setupSaveCourses(courses) {
 /**
  * Tests the Gemini API connection.
  */
-function setupTestGemini(apiKey) {
+function setupTestGemini(apiKey, model) {
   try {
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+    var modelName = model || getConfigValue('Gemini Model') || 'gemini-2.0-flash';
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + apiKey;
     var payload = {
       contents: [{ parts: [{ text: 'Say "hello" and nothing else.' }] }]
     };
@@ -63,8 +64,9 @@ function setupTestGemini(apiKey) {
 /**
  * Saves Gemini configuration.
  */
-function setupSaveGemini(apiKey) {
+function setupSaveGemini(apiKey, model) {
   setConfigValue('Gemini API Key', apiKey);
+  if (model) setConfigValue('Gemini Model', model);
   return { success: true };
 }
 
