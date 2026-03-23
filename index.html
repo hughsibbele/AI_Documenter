@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Use Documentation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #f8f9fa;
+      color: #202124;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    .header {
+      background: #1a73e8;
+      color: #fff;
+      padding: 24px;
+      border-radius: 8px 8px 0 0;
+      margin-bottom: 0;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 6px;
+    }
+
+    .field label .required {
+      color: #d93025;
+      margin-left: 2px;
+    }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="number"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fff;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+    }
+
+    .field select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg fill='%235f6368' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 24px;
+      padding-right: 36px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .field .help-text {
+      font-size: 12px;
+      color: #5f6368;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .field-other {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .field-other.visible { display: block; }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+
+    .submit-btn:hover { background: #1557b0; }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .status-message {
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 16px;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .status-message.success {
+      display: block;
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    .status-message.error {
+      display: block;
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .status-message.loading {
+      display: block;
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(26,115,232,0.3);
+      border-top-color: #1a73e8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Loading overlay for initial data fetch */
+    .loading-overlay {
+      text-align: center;
+      padding: 40px;
+      color: #5f6368;
+    }
+
+    .loading-overlay .spinner {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0; }
+      .header { border-radius: 0; }
+      .form-card { border-radius: 0; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>AI Use Documentation</h1>
+      <p>Document your AI tool usage for this assignment.</p>
+    </div>
+
+    <div class="form-card">
+      <!-- Loading state -->
+      <div id="loadingState" class="loading-overlay">
+        <div class="spinner" style="display:block; margin:0 auto 12px;"></div>
+        <p>Loading form...</p>
+      </div>
+
+      <!-- Form (hidden until loaded) -->
+      <form id="aiForm" style="display:none;" onsubmit="handleSubmit(event)">
+        <div class="field">
+          <label>Name <span class="required">*</span></label>
+          <input type="text" id="studentName" required placeholder="Your full name">
+        </div>
+
+        <div class="field">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" id="studentEmail" required placeholder="your.email@school.edu">
+        </div>
+
+        <div class="field">
+          <label>Course <span class="required">*</span></label>
+          <select id="courseSelect" required onchange="onCourseChange()">
+            <option value="" disabled selected>Select your course</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Assignment <span class="required">*</span></label>
+          <select id="assignmentSelect" required disabled>
+            <option value="" disabled selected>Select a course first</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>AI Tool Used <span class="required">*</span></label>
+          <select id="toolSelect" required onchange="onToolChange()">
+            <option value="" disabled selected>Select the AI tool you used</option>
+          </select>
+        </div>
+
+        <div class="field field-other" id="otherToolField">
+          <label>Specify Other Tool</label>
+          <input type="text" id="otherTool" placeholder="Name of the AI tool">
+        </div>
+
+        <div class="field">
+          <label>Time Spent with AI (minutes) <span class="required">*</span></label>
+          <input type="number" id="timeSpent" required min="1" placeholder="Minutes">
+          <div class="help-text">Approximate number of minutes you spent interacting with the AI tool.</div>
+        </div>
+
+        <div class="field">
+          <label>Reflection <span class="required">*</span></label>
+          <textarea id="reflection" rows="6" required
+            placeholder="Write at least 6 sentences reflecting on your AI use..."></textarea>
+          <div class="help-text">In at least 6 sentences, describe: How did you use AI in your process? How did it affect your product? How did it affect your learning?</div>
+        </div>
+
+        <div class="field">
+          <label>Chat Transcript <span class="required">*</span></label>
+          <textarea id="transcript" rows="10" required
+            placeholder="Paste your complete chat transcript here..."></textarea>
+          <div class="help-text">Copy and paste your full conversation with the AI tool.</div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+
+        <div class="status-message" id="statusMessage"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    var coursesData = [];
+    var assignmentsData = {};
+
+    // Initialize the form on load
+    loadFormData();
+
+    function loadFormData() {
+      // Fetch courses and tools in parallel
+      var loaded = { courses: false, tools: false };
+
+      google.script.run
+        .withSuccessHandler(function(courses) {
+          coursesData = courses || [];
+          populateCourses();
+          loaded.courses = true;
+          if (loaded.tools) showForm();
+        })
+        .withFailureHandler(function(err) {
+          showError('Failed to load courses: ' + err.message);
+        })
+        .getCourses();
+
+      google.script.run
+        .withSuccessHandler(function(tools) {
+          populateTools(tools || []);
+          loaded.tools = true;
+          if (loaded.courses) showForm();
+        })
+        .withFailureHandler(function(err) {
+          showError('Failed to load tools: ' + err.message);
+        })
+        .getFormTools();
+    }
+
+    function showForm() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('aiForm').style.display = 'block';
+    }
+
+    function showError(msg) {
+      document.getElementById('loadingState').innerHTML =
+        '<p style="color: #c5221f;">' + escapeHtml(msg) + '</p>';
+    }
+
+    function populateCourses() {
+      var select = document.getElementById('courseSelect');
+      for (var i = 0; i < coursesData.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = coursesData[i].id;
+        opt.textContent = coursesData[i].name;
+        opt.dataset.name = coursesData[i].name;
+        select.appendChild(opt);
+      }
+    }
+
+    function populateTools(tools) {
+      var select = document.getElementById('toolSelect');
+      for (var i = 0; i < tools.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = tools[i];
+        opt.textContent = tools[i];
+        select.appendChild(opt);
+      }
+    }
+
+    function onCourseChange() {
+      var select = document.getElementById('courseSelect');
+      var courseId = select.value;
+      var assignmentSelect = document.getElementById('assignmentSelect');
+
+      // Clear current assignments
+      assignmentSelect.innerHTML = '<option value="" disabled selected>Loading assignments...</option>';
+      assignmentSelect.disabled = true;
+
+      // Check cache first
+      if (assignmentsData[courseId]) {
+        renderAssignments(assignmentsData[courseId]);
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(assignments) {
+          assignmentsData[courseId] = assignments || [];
+          renderAssignments(assignments || []);
+        })
+        .withFailureHandler(function(err) {
+          assignmentSelect.innerHTML = '<option value="" disabled selected>Error loading assignments</option>';
+        })
+        .getAssignmentsForCourse(courseId);
+    }
+
+    function renderAssignments(assignments) {
+      var select = document.getElementById('assignmentSelect');
+      select.innerHTML = '<option value="" disabled selected>Select your assignment</option>';
+      for (var i = 0; i < assignments.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = assignments[i].name;
+        opt.textContent = assignments[i].label;
+        opt.dataset.dueDate = assignments[i].dueDate || '';
+        select.appendChild(opt);
+      }
+      select.disabled = false;
+    }
+
+    function onToolChange() {
+      var tool = document.getElementById('toolSelect').value;
+      var otherField = document.getElementById('otherToolField');
+      if (tool === 'Other') {
+        otherField.classList.add('visible');
+      } else {
+        otherField.classList.remove('visible');
+      }
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      var btn = document.getElementById('submitBtn');
+      var status = document.getElementById('statusMessage');
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      status.className = 'status-message loading';
+      status.innerHTML = '<span class="spinner"></span> Submitting your documentation...';
+
+      var courseSelect = document.getElementById('courseSelect');
+      var assignmentSelect = document.getElementById('assignmentSelect');
+      var selectedOption = assignmentSelect.options[assignmentSelect.selectedIndex];
+
+      var formData = {
+        name: document.getElementById('studentName').value,
+        email: document.getElementById('studentEmail').value,
+        courseId: courseSelect.value,
+        courseName: courseSelect.options[courseSelect.selectedIndex].dataset.name,
+        assignment: assignmentSelect.value,
+        dueDate: selectedOption ? selectedOption.dataset.dueDate : '',
+        tool: document.getElementById('toolSelect').value,
+        otherTool: document.getElementById('otherTool').value,
+        time: document.getElementById('timeSpent').value,
+        reflection: document.getElementById('reflection').value,
+        transcript: document.getElementById('transcript').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            status.className = 'status-message success';
+            status.textContent = result.message;
+            // Reset form after brief delay
+            setTimeout(function() {
+              document.getElementById('aiForm').reset();
+              document.getElementById('assignmentSelect').innerHTML =
+                '<option value="" disabled selected>Select a course first</option>';
+              document.getElementById('assignmentSelect').disabled = true;
+              document.getElementById('otherToolField').classList.remove('visible');
+              btn.disabled = false;
+              btn.textContent = 'Submit';
+              // Scroll to top
+              window.scrollTo(0, 0);
+            }, 3000);
+          } else {
+            status.className = 'status-message error';
+            status.textContent = result.message;
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+          }
+        })
+        .withFailureHandler(function(err) {
+          status.className = 'status-message error';
+          status.textContent = 'Submission failed: ' + err.message;
+          btn.disabled = false;
+          btn.textContent = 'Submit';
+        })
+        .submitForm(formData);
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

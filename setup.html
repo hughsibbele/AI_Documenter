@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+      color: #202124;
+      background: #fff;
+      padding: 24px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #1a73e8;
+    }
+    p { font-size: 14px; line-height: 1.6; color: #5f6368; margin-bottom: 16px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #5f6368;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { border-color: #1a73e8; }
+    textarea { resize: vertical; min-height: 80px; font-family: monospace; font-size: 12px; }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    .btn-primary { background: #1a73e8; color: #fff; }
+    .btn-primary:hover { background: #1557b0; }
+    .btn-secondary { background: #f1f3f4; color: #202124; }
+    .btn-secondary:hover { background: #e8eaed; }
+    .btn-test { background: #e8f0fe; color: #1a73e8; }
+    .btn-test:hover { background: #d2e3fc; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status {
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+    .status.success { display: block; background: #e6f4ea; color: #137333; }
+    .status.error { display: block; background: #fce8e6; color: #c5221f; }
+    .status.info { display: block; background: #e8f0fe; color: #1a73e8; }
+    .course-list { margin-top: 12px; max-height: 200px; overflow-y: auto; }
+    .course-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    .course-item input { margin-right: 10px; width: auto; }
+    .course-item label { margin: 0; font-weight: 400; color: #202124; }
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #dadce0;
+    }
+    .step-dot.active { background: #1a73e8; }
+    .step-dot.done { background: #34a853; }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #dadce0;
+      border-top-color: #1a73e8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .help-text { font-size: 12px; color: #80868b; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+  </div>
+
+  <!-- Step 0: Welcome -->
+  <div class="step active" id="step0">
+    <h2>Welcome to AI Documenter</h2>
+    <p>This wizard will set up your AI documentation system. You'll need:</p>
+    <p>
+      &bull; Your Canvas API token<br>
+      &bull; A Gemini API key<br>
+    </p>
+    <p>The setup takes about 2 minutes.</p>
+    <button class="btn btn-primary" onclick="goToStep(1)">Get Started</button>
+  </div>
+
+  <!-- Step 1: Canvas Connection -->
+  <div class="step" id="step1">
+    <h2>Canvas Connection</h2>
+    <p>Connect to your Canvas LMS to pull course and assignment data.</p>
+
+    <label>Canvas URL</label>
+    <input type="text" id="canvasUrl" value="episcopalhighschool.instructure.com" placeholder="yourschool.instructure.com">
+
+    <label>API Token</label>
+    <input type="password" id="canvasToken" placeholder="Paste your Canvas API token">
+    <div class="help-text">Generate at: Canvas → Account → Settings → New Access Token</div>
+
+    <button class="btn btn-test" onclick="testCanvas()" id="btnTestCanvas">Test Connection</button>
+    <div class="status" id="canvasStatus"></div>
+
+    <div style="margin-top: 20px;">
+      <button class="btn btn-secondary" onclick="goToStep(0)">Back</button>
+      <button class="btn btn-primary" onclick="goToStep(2)" id="btnCanvasNext" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Select Courses -->
+  <div class="step" id="step2">
+    <h2>Select Courses</h2>
+    <p>Choose which courses to track AI usage for.</p>
+    <div class="course-list" id="courseList">
+      <p style="color: #80868b;">Courses will appear after connecting to Canvas.</p>
+    </div>
+    <div style="margin-top: 20px;">
+      <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+      <button class="btn btn-primary" onclick="saveCourses()" id="btnCoursesNext">Next</button>
+    </div>
+    <div class="status" id="coursesStatus"></div>
+  </div>
+
+  <!-- Step 3: Gemini Setup -->
+  <div class="step" id="step3">
+    <h2>Gemini API Setup</h2>
+    <p>Connect to Google's Gemini AI for transcript processing.</p>
+
+    <label>Gemini API Key</label>
+    <input type="password" id="geminiKey" placeholder="Paste your Gemini API key">
+    <div class="help-text">Get one free at: aistudio.google.com → Get API Key</div>
+
+    <button class="btn btn-test" onclick="testGemini()" id="btnTestGemini">Test Connection</button>
+    <div class="status" id="geminiStatus"></div>
+
+    <div style="margin-top: 20px;">
+      <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+      <button class="btn btn-primary" onclick="saveGemini()" id="btnGeminiNext" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- Step 4: AI Tools -->
+  <div class="step" id="step4">
+    <h2>AI Tools List</h2>
+    <p>Customize the dropdown list of AI tools students can select. Separate with commas. "Other" will always include a fill-in field.</p>
+
+    <label>Tools (comma-separated)</label>
+    <input type="text" id="aiTools" value="ChekhovBot, GothBot, Gemini, ChatGPT, Claude, Other">
+
+    <div style="margin-top: 20px;">
+      <button class="btn btn-secondary" onclick="goToStep(3)">Back</button>
+      <button class="btn btn-primary" onclick="saveTools()">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 5: Complete -->
+  <div class="step" id="step5">
+    <h2>Finishing Setup...</h2>
+    <p><span class="spinner" id="finalSpinner"></span> Creating course tabs, syncing assignments, and setting up triggers...</p>
+    <div class="status" id="finalStatus"></div>
+    <button class="btn btn-primary" onclick="google.script.host.close()" id="btnFinish" style="display:none;">Close</button>
+  </div>
+
+  <script>
+    var currentStep = 0;
+    var discoveredCourses = [];
+
+    function goToStep(step) {
+      document.getElementById('step' + currentStep).classList.remove('active');
+      document.getElementById('step' + step).classList.add('active');
+
+      // Update step indicators
+      var dots = document.querySelectorAll('.step-dot');
+      for (var i = 0; i < dots.length; i++) {
+        dots[i].className = 'step-dot';
+        if (i < step) dots[i].classList.add('done');
+        if (i === step) dots[i].classList.add('active');
+      }
+      currentStep = step;
+    }
+
+    function testCanvas() {
+      var url = document.getElementById('canvasUrl').value.trim();
+      var token = document.getElementById('canvasToken').value.trim();
+      if (!url || !token) {
+        showStatus('canvasStatus', 'Please fill in both fields.', 'error');
+        return;
+      }
+      showStatus('canvasStatus', '<span class="spinner"></span> Testing connection...', 'info');
+      document.getElementById('btnTestCanvas').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('btnTestCanvas').disabled = false;
+          if (result.success) {
+            showStatus('canvasStatus', result.message, 'success');
+            document.getElementById('btnCanvasNext').disabled = false;
+            discoveredCourses = result.courses || [];
+            renderCourseList();
+          } else {
+            showStatus('canvasStatus', result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('btnTestCanvas').disabled = false;
+          showStatus('canvasStatus', 'Error: ' + err.message, 'error');
+        })
+        .testCanvasConnection(url, token);
+    }
+
+    function renderCourseList() {
+      var container = document.getElementById('courseList');
+      if (discoveredCourses.length === 0) {
+        container.innerHTML = '<p style="color: #80868b;">No courses found.</p>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < discoveredCourses.length; i++) {
+        var c = discoveredCourses[i];
+        html += '<div class="course-item">' +
+          '<input type="checkbox" id="course_' + c.id + '" checked>' +
+          '<label for="course_' + c.id + '">' + escapeHtml(c.name) + '</label>' +
+          '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function saveCourses() {
+      var selected = [];
+      for (var i = 0; i < discoveredCourses.length; i++) {
+        var cb = document.getElementById('course_' + discoveredCourses[i].id);
+        if (cb && cb.checked) {
+          selected.push(discoveredCourses[i]);
+        }
+      }
+      if (selected.length === 0) {
+        showStatus('coursesStatus', 'Please select at least one course.', 'error');
+        return;
+      }
+      showStatus('coursesStatus', '<span class="spinner"></span> Saving...', 'info');
+
+      // Also save Canvas config now
+      var url = document.getElementById('canvasUrl').value.trim();
+      var token = document.getElementById('canvasToken').value.trim();
+
+      google.script.run
+        .withSuccessHandler(function() {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              showStatus('coursesStatus', result.message, 'success');
+              goToStep(3);
+            })
+            .withFailureHandler(function(err) {
+              showStatus('coursesStatus', 'Error: ' + err.message, 'error');
+            })
+            .setupSaveCourses(selected);
+        })
+        .setupSaveCanvas(url, token);
+    }
+
+    function testGemini() {
+      var key = document.getElementById('geminiKey').value.trim();
+      if (!key) {
+        showStatus('geminiStatus', 'Please enter an API key.', 'error');
+        return;
+      }
+      showStatus('geminiStatus', '<span class="spinner"></span> Testing connection...', 'info');
+      document.getElementById('btnTestGemini').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('btnTestGemini').disabled = false;
+          if (result.success) {
+            showStatus('geminiStatus', result.message, 'success');
+            document.getElementById('btnGeminiNext').disabled = false;
+          } else {
+            showStatus('geminiStatus', result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('btnTestGemini').disabled = false;
+          showStatus('geminiStatus', 'Error: ' + err.message, 'error');
+        })
+        .setupTestGemini(key);
+    }
+
+    function saveGemini() {
+      var key = document.getElementById('geminiKey').value.trim();
+      google.script.run
+        .withSuccessHandler(function() { goToStep(4); })
+        .setupSaveGemini(key);
+    }
+
+    function saveTools() {
+      var tools = document.getElementById('aiTools').value.trim();
+      google.script.run
+        .withSuccessHandler(function() {
+          goToStep(5);
+          finalize();
+        })
+        .setupSaveTools(tools);
+    }
+
+    function finalize() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('finalSpinner').style.display = 'none';
+          if (result.success) {
+            document.querySelector('#step5 h2').textContent = 'Setup Complete!';
+            document.querySelector('#step5 p').textContent = '';
+            showStatus('finalStatus', result.message, 'success');
+          } else {
+            showStatus('finalStatus', result.message, 'error');
+          }
+          document.getElementById('btnFinish').style.display = 'inline-block';
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('finalSpinner').style.display = 'none';
+          showStatus('finalStatus', 'Error: ' + err.message, 'error');
+          document.getElementById('btnFinish').style.display = 'inline-block';
+        })
+        .setupFinalize();
+    }
+
+    function showStatus(elementId, message, type) {
+      var el = document.getElementById(elementId);
+      el.innerHTML = message;
+      el.className = 'status ' + type;
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
