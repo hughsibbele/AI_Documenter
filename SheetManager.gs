@@ -186,18 +186,54 @@ function appendSubmission(courseName, rowData) {
   var sheet = getOrCreateCourseSheet(courseName);
   var newRow = sheet.getLastRow() + 1;
   sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+  // Cap row height at 2 lines (42px) so transcripts don't blow up the sheet
+  sheet.setRowHeight(newRow, 42);
   return newRow;
 }
 
 /**
  * Updates Gemini processing results for a specific row.
+ * Bolds speaker tags (Student:, AI:) in the cleaned transcript using RichText.
  */
 function updateProcessingResults(courseName, rowNumber, cleanedTranscript, summary, status) {
   var sheet = getOrCreateCourseSheet(courseName);
-  // Columns K (11), L (12), M (13)
-  sheet.getRange(rowNumber, 11).setValue(cleanedTranscript);
+
+  // Write cleaned transcript with bold speaker tags
+  if (cleanedTranscript) {
+    var richText = buildBoldSpeakerTags_(cleanedTranscript);
+    sheet.getRange(rowNumber, 11).setRichTextValue(richText);
+  } else {
+    sheet.getRange(rowNumber, 11).setValue('');
+  }
+
+  // Columns L (12), M (13)
   sheet.getRange(rowNumber, 12).setValue(summary);
   sheet.getRange(rowNumber, 13).setValue(status);
+
+  // Ensure row stays capped at 2 lines
+  sheet.setRowHeight(rowNumber, 42);
+}
+
+/**
+ * Builds a RichTextValue with bold "Student:" and "AI:" speaker tags.
+ */
+function buildBoldSpeakerTags_(text) {
+  var builder = SpreadsheetApp.newRichTextValue().setText(text);
+  var boldStyle = SpreadsheetApp.newTextStyle().setBold(true).build();
+
+  var patterns = ['Student:', 'AI:'];
+  for (var p = 0; p < patterns.length; p++) {
+    var tag = patterns[p];
+    var startIdx = 0;
+    while (true) {
+      var idx = text.indexOf(tag, startIdx);
+      if (idx === -1) break;
+      builder.setTextStyle(idx, idx + tag.length, boldStyle);
+      startIdx = idx + tag.length;
+    }
+  }
+
+  return builder.build();
 }
 
 /**
