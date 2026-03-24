@@ -237,7 +237,6 @@ function getAssignmentsSheet() {
     sheet = ss.insertSheet('_Assignments');
     sheet.getRange(1, 1, 1, ASSIGNMENTS_HEADERS.length).setValues([ASSIGNMENTS_HEADERS]);
     sheet.getRange(1, 1, 1, ASSIGNMENTS_HEADERS.length).setFontWeight('bold');
-    sheet.hideSheet();
   }
   return sheet;
 }

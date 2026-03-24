@@ -16,10 +16,30 @@ function getCourses() {
 
 /**
  * Returns assignments for a course, formatted for the form dropdown.
+ * Falls back to live Canvas fetch if cache is empty.
  * Called by the form frontend via google.script.run.
  */
 function getAssignmentsForCourse(courseId) {
   var assignments = getCachedAssignments(courseId);
+
+  // Fallback: if cache is empty for this course, try fetching live from Canvas
+  if (assignments.length === 0) {
+    Logger.log('Assignment cache empty for courseId: ' + courseId + '. Fetching live from Canvas.');
+    try {
+      assignments = fetchAssignments(courseId).map(function(a) {
+        return {
+          courseId: String(courseId),
+          courseName: '',
+          assignmentId: a.assignmentId,
+          name: a.name,
+          dueDate: a.dueDate
+        };
+      });
+    } catch (err) {
+      Logger.log('Live Canvas fetch failed: ' + err.message);
+    }
+  }
+
   return assignments.map(function(a) {
     var label = a.name;
     if (a.dueDate && a.dueDate !== 'No due date') {
