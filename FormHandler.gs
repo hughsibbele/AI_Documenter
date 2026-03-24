@@ -47,7 +47,7 @@ function getAssignmentsForCourse(courseId) {
     // Force all values to strings to prevent serialization issues
     return assignments.map(function(a) {
       var label = String(a.name || '');
-      var due = String(a.dueDate || '');
+      var due = formatDueDate_(a.dueDate);
       if (due && due !== 'No due date') {
         label += ' (Due: ' + due + ')';
       }
@@ -57,6 +57,26 @@ function getAssignmentsForCourse(courseId) {
   } catch (e) {
     return [{ name: 'Error: ' + String(e.message || e), dueDate: '', label: 'Error loading: ' + String(e.message || e) }];
   }
+}
+
+/**
+ * Formats a due date value into a clean date string (no time/timezone).
+ * Handles Date objects, date strings, and already-formatted strings.
+ */
+function formatDueDate_(val) {
+  if (!val) return '';
+  // Already a clean string like "Mar 25" or "No due date"
+  var str = String(val);
+  if (str === 'No due date' || str.length <= 10) return str;
+  // If it looks like a full date string or Date object, extract just the date
+  try {
+    var d = (val instanceof Date) ? val : new Date(val);
+    if (!isNaN(d.getTime())) {
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return months[d.getMonth()] + ' ' + d.getDate();
+    }
+  } catch (e) {}
+  return str;
 }
 
 /**
