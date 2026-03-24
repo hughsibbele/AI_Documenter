@@ -20,68 +20,43 @@ function getCourses() {
  * Called by the form frontend via google.script.run.
  */
 function getAssignmentsForCourse(courseId) {
-  var debug = [];
-  debug.push('courseId=' + courseId);
+  try {
+    var assignments = getCachedAssignments(courseId);
 
-  // Try 1: match by course ID in cache
-  var assignments = getCachedAssignments(courseId);
-  debug.push('cacheById=' + assignments.length);
-
-  // Try 2: match by course name in cache (in case IDs differ)
-  if (assignments.length === 0) {
-    var allCached = getCachedAssignments();
-    debug.push('totalCached=' + allCached.length);
-    if (allCached.length > 0) {
-      debug.push('cachedIds=' + allCached.map(function(a) { return a.courseId; }).filter(function(v, i, s) { return s.indexOf(v) === i; }).join(';'));
+    // Fallback: match by course name if ID match fails
+    if (assignments.length === 0) {
+      var allCached = getCachedAssignments();
+      var courses = getActiveCourses();
+      var course = null;
+      for (var i = 0; i < courses.length; i++) {
+        if (courses[i].id === String(courseId)) { course = courses[i]; break; }
+      }
+      if (course) {
+        assignments = allCached.filter(function(a) { return a.courseName === course.name; });
+      }
     }
 
-    var courses = getActiveCourses();
-    var course = null;
-    for (var i = 0; i < courses.length; i++) {
-      if (courses[i].id === String(courseId)) { course = courses[i]; break; }
-    }
-    if (course) {
-      debug.push('courseName=' + course.name);
-      assignments = allCached.filter(function(a) { return a.courseName === course.name; });
-      debug.push('cacheByName=' + assignments.length);
-    }
-  }
-
-  // Try 3: live Canvas fetch
-  if (assignments.length === 0) {
-    try {
+    // Fallback: live Canvas fetch
+    if (assignments.length === 0) {
       var live = fetchAssignments(courseId);
-      debug.push('canvasLive=' + live.length);
       assignments = live.map(function(a) {
-        return {
-          courseId: String(courseId),
-          courseName: '',
-          assignmentId: a.assignmentId,
-          name: a.name,
-          dueDate: a.dueDate
-        };
+        return { courseId: String(courseId), courseName: '', assignmentId: a.assignmentId, name: a.name, dueDate: a.dueDate };
       });
-    } catch (err) {
-      debug.push('canvasError=' + err.message);
     }
-  }
 
-  // If still empty, return a diagnostic entry so we can see what happened
-  if (assignments.length === 0) {
-    return [{ name: 'DEBUG: ' + debug.join(' | '), dueDate: '', label: 'DEBUG: ' + debug.join(' | ') }];
-  }
+    // Force all values to strings to prevent serialization issues
+    return assignments.map(function(a) {
+      var label = String(a.name || '');
+      var due = String(a.dueDate || '');
+      if (due && due !== 'No due date') {
+        label += ' (Due: ' + due + ')';
+      }
+      return { name: String(a.name || ''), dueDate: due, label: label };
+    });
 
-  return assignments.map(function(a) {
-    var label = a.name;
-    if (a.dueDate && a.dueDate !== 'No due date') {
-      label += ' (Due: ' + a.dueDate + ')';
-    }
-    return {
-      name: a.name,
-      dueDate: a.dueDate,
-      label: label
-    };
-  });
+  } catch (e) {
+    return [{ name: 'Error: ' + String(e.message || e), dueDate: '', label: 'Error loading: ' + String(e.message || e) }];
+  }
 }
 
 /**
