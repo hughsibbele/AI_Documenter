@@ -20,13 +20,39 @@ function getCourses() {
  * Called by the form frontend via google.script.run.
  */
 function getAssignmentsForCourse(courseId) {
-  var assignments = getCachedAssignments(courseId);
+  var debug = [];
+  debug.push('courseId=' + courseId);
 
-  // Fallback: if cache is empty for this course, try fetching live from Canvas
+  // Try 1: match by course ID in cache
+  var assignments = getCachedAssignments(courseId);
+  debug.push('cacheById=' + assignments.length);
+
+  // Try 2: match by course name in cache (in case IDs differ)
   if (assignments.length === 0) {
-    Logger.log('Assignment cache empty for courseId: ' + courseId + '. Fetching live from Canvas.');
+    var allCached = getCachedAssignments();
+    debug.push('totalCached=' + allCached.length);
+    if (allCached.length > 0) {
+      debug.push('cachedIds=' + allCached.map(function(a) { return a.courseId; }).filter(function(v, i, s) { return s.indexOf(v) === i; }).join(';'));
+    }
+
+    var courses = getActiveCourses();
+    var course = null;
+    for (var i = 0; i < courses.length; i++) {
+      if (courses[i].id === String(courseId)) { course = courses[i]; break; }
+    }
+    if (course) {
+      debug.push('courseName=' + course.name);
+      assignments = allCached.filter(function(a) { return a.courseName === course.name; });
+      debug.push('cacheByName=' + assignments.length);
+    }
+  }
+
+  // Try 3: live Canvas fetch
+  if (assignments.length === 0) {
     try {
-      assignments = fetchAssignments(courseId).map(function(a) {
+      var live = fetchAssignments(courseId);
+      debug.push('canvasLive=' + live.length);
+      assignments = live.map(function(a) {
         return {
           courseId: String(courseId),
           courseName: '',
@@ -36,8 +62,13 @@ function getAssignmentsForCourse(courseId) {
         };
       });
     } catch (err) {
-      Logger.log('Live Canvas fetch failed: ' + err.message);
+      debug.push('canvasError=' + err.message);
     }
+  }
+
+  // If still empty, return a diagnostic entry so we can see what happened
+  if (assignments.length === 0) {
+    return [{ name: 'DEBUG: ' + debug.join(' | '), dueDate: '', label: 'DEBUG: ' + debug.join(' | ') }];
   }
 
   return assignments.map(function(a) {
