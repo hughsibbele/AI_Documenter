@@ -344,22 +344,30 @@
       var courseId = select.value;
       var assignmentSelect = document.getElementById('assignmentSelect');
 
+      console.log('Course selected — courseId:', courseId);
+
       // Clear current assignments
       assignmentSelect.innerHTML = '<option value="" disabled selected>Loading assignments...</option>';
       assignmentSelect.disabled = true;
 
-      // Check cache first
-      if (assignmentsData[courseId]) {
+      // Check cache first (only if we got results last time)
+      if (assignmentsData[courseId] && assignmentsData[courseId].length > 0) {
+        console.log('Using cached assignments:', assignmentsData[courseId].length);
         renderAssignments(assignmentsData[courseId]);
         return;
       }
 
+      console.log('Fetching assignments from server...');
       google.script.run
         .withSuccessHandler(function(assignments) {
-          assignmentsData[courseId] = assignments || [];
+          console.log('Assignments received:', JSON.stringify(assignments));
+          if (assignments && assignments.length > 0) {
+            assignmentsData[courseId] = assignments;
+          }
           renderAssignments(assignments || []);
         })
         .withFailureHandler(function(err) {
+          console.error('Assignment fetch failed:', err);
           assignmentSelect.innerHTML = '<option value="" disabled selected>Error loading assignments</option>';
         })
         .getAssignmentsForCourse(courseId);
