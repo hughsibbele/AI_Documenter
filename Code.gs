@@ -25,6 +25,8 @@ function onOpen() {
     .addItem('Retry Failed Processing', 'retryFailedProcessing')
     .addSeparator()
     .addItem('Refresh Dashboard', 'refreshDashboard')
+    .addSeparator()
+    .addItem('Reformat Tabs', 'reformatTabs')
     .addToUi();
 }
 

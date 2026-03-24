@@ -110,6 +110,9 @@ function setupFinalize() {
     // Initialize Dashboard tab
     initializeDashboardSheet();
 
+    // Organize and color-code tabs
+    organizeTabs_(courses);
+
     return {
       success: true,
       message: 'Setup complete! Synced ' + allAssignments.length + ' assignments from ' +
@@ -124,4 +127,58 @@ function setupFinalize() {
   } catch (err) {
     return { success: false, message: 'Finalization error: ' + err.message };
   }
+}
+
+/**
+ * Menu-callable version: reorganizes and color-codes all tabs
+ * without re-running the full setup wizard.
+ */
+function reformatTabs() {
+  var courses = getActiveCourses();
+  organizeTabs_(courses);
+  SpreadsheetApp.getUi().alert('Tabs reorganized and color-coded.');
+}
+
+/**
+ * Organizes tab order and applies color coding after setup.
+ * Order: Dashboard, course tabs (alphabetical), Config, _Assignments
+ * Removes the default "Sheet1" tab if it's still blank.
+ */
+function organizeTabs_(courses) {
+  var ss = getSpreadsheet();
+
+  // Remove default "Sheet1" if it exists and is empty
+  var sheet1 = ss.getSheetByName('Sheet1');
+  if (sheet1 && sheet1.getLastRow() <= 1 && sheet1.getLastColumn() <= 1) {
+    ss.deleteSheet(sheet1);
+  }
+
+  // Color coding
+  var dashboard = ss.getSheetByName('Dashboard');
+  if (dashboard) dashboard.setTabColor('#1a73e8'); // blue
+
+  var courseNames = courses.map(function(c) { return c.name; }).sort();
+  for (var i = 0; i < courseNames.length; i++) {
+    var sheet = ss.getSheetByName(courseNames[i]);
+    if (sheet) sheet.setTabColor('#34a853'); // green
+  }
+
+  var config = ss.getSheetByName('Config');
+  if (config) config.setTabColor('#80868b'); // gray
+
+  var assignments = ss.getSheetByName('_Assignments');
+  if (assignments) assignments.setTabColor('#80868b'); // gray
+
+  // Reorder tabs: Dashboard first, then courses alphabetically, then Config, then _Assignments
+  var position = 0;
+  if (dashboard) { ss.setActiveSheet(dashboard); ss.moveActiveSheet(position + 1); position++; }
+  for (var i = 0; i < courseNames.length; i++) {
+    var sheet = ss.getSheetByName(courseNames[i]);
+    if (sheet) { ss.setActiveSheet(sheet); ss.moveActiveSheet(position + 1); position++; }
+  }
+  if (config) { ss.setActiveSheet(config); ss.moveActiveSheet(position + 1); position++; }
+  if (assignments) { ss.setActiveSheet(assignments); ss.moveActiveSheet(position + 1); position++; }
+
+  // Return focus to Dashboard
+  if (dashboard) ss.setActiveSheet(dashboard);
 }
