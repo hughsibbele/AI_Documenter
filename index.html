@@ -8,10 +8,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
-      background: #f8f9fa;
-      color: #202124;
+      font-family: Arial, Tahoma, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #333;
       min-height: 100vh;
+    }
+
+    h1, h2, h3 {
+      font-family: Georgia, 'Times New Roman', serif;
     }
 
     .container {
@@ -21,22 +25,31 @@
     }
 
     .header {
-      background: #1a73e8;
+      background: #7a1e46;
       color: #fff;
-      padding: 24px;
+      padding: 20px 24px;
       border-radius: 8px 8px 0 0;
       margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
 
-    .header h1 {
+    .header-logo {
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
       font-size: 22px;
-      font-weight: 500;
-      margin-bottom: 4px;
+      font-weight: normal;
+      margin-bottom: 2px;
     }
 
-    .header p {
+    .header-text p {
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.85;
+      font-family: Arial, Tahoma, Helvetica, sans-serif;
     }
 
     .form-card {
@@ -53,13 +66,13 @@
     .field label {
       display: block;
       font-size: 14px;
-      font-weight: 500;
-      color: #202124;
+      font-weight: bold;
+      color: #333;
       margin-bottom: 6px;
     }
 
     .field label .required {
-      color: #d93025;
+      color: #c5221f;
       margin-left: 2px;
     }
 
@@ -70,7 +83,7 @@
     .field textarea {
       width: 100%;
       padding: 12px;
-      border: 1px solid #dadce0;
+      border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 15px;
       font-family: inherit;
@@ -83,13 +96,13 @@
     .field input:focus,
     .field select:focus,
     .field textarea:focus {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+      border-color: #7a1e46;
+      box-shadow: 0 0 0 2px rgba(122,30,70,0.15);
     }
 
     .field select {
       cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg fill='%235f6368' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg fill='%2354565b' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 8px center;
       background-size: 24px;
@@ -103,7 +116,7 @@
 
     .field .help-text {
       font-size: 12px;
-      color: #5f6368;
+      color: #54565b;
       margin-top: 4px;
       line-height: 1.4;
     }
@@ -122,7 +135,7 @@
     .combobox input {
       width: 100%;
       padding: 12px;
-      border: 1px solid #dadce0;
+      border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 15px;
       font-family: inherit;
@@ -131,12 +144,12 @@
       background: #fff;
     }
     .combobox input:focus {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+      border-color: #7a1e46;
+      box-shadow: 0 0 0 2px rgba(122,30,70,0.15);
     }
     .combobox input:disabled {
-      background: #f1f3f4;
-      color: #80868b;
+      background: #f1f1f1;
+      color: #999;
     }
     .combobox-list {
       display: none;
@@ -147,7 +160,7 @@
       max-height: 240px;
       overflow-y: auto;
       background: #fff;
-      border: 1px solid #dadce0;
+      border: 1px solid #ccc;
       border-top: none;
       border-radius: 0 0 4px 4px;
       z-index: 100;
@@ -158,40 +171,91 @@
       padding: 10px 12px;
       font-size: 14px;
       cursor: pointer;
-      border-bottom: 1px solid #f1f3f4;
+      border-bottom: 1px solid #eee;
     }
     .combobox-item:last-child { border-bottom: none; }
     .combobox-item:hover, .combobox-item.highlighted {
-      background: #e8f0fe;
+      background: rgba(122,30,70,0.08);
     }
     .combobox-item .due-date {
       font-size: 12px;
-      color: #5f6368;
+      color: #54565b;
       margin-left: 8px;
     }
     .combobox-empty {
       padding: 10px 12px;
       font-size: 13px;
-      color: #80868b;
+      color: #999;
       font-style: italic;
+    }
+
+    /* Honor Pledge */
+    .honor-pledge {
+      margin-bottom: 20px;
+      border: 2px solid #7a1e46;
+      border-radius: 4px;
+      padding: 20px;
+      background: #fdf8fa;
+    }
+
+    .honor-pledge h3 {
+      font-size: 16px;
+      color: #7a1e46;
+      margin-bottom: 12px;
+    }
+
+    .honor-pledge .pledge-text {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+
+    .honor-pledge label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #54565b;
+      margin-bottom: 6px;
+    }
+
+    .honor-pledge input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-bottom: 2px solid #54565b;
+      border-radius: 4px 4px 0 0;
+      font-size: 16px;
+      font-family: Georgia, 'Times New Roman', serif;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fff;
+    }
+
+    .honor-pledge input[type="text"]:focus {
+      border-color: #7a1e46;
+      border-bottom-color: #7a1e46;
+      box-shadow: 0 0 0 2px rgba(122,30,70,0.15);
     }
 
     .submit-btn {
       display: block;
       width: 100%;
       padding: 14px;
-      background: #1a73e8;
+      background: #7a1e46;
       color: #fff;
       border: none;
       border-radius: 4px;
       font-size: 16px;
-      font-weight: 500;
+      font-weight: bold;
       cursor: pointer;
       transition: background 0.2s;
       font-family: inherit;
     }
 
-    .submit-btn:hover { background: #1557b0; }
+    .submit-btn:hover { background: #5e1737; }
     .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .status-message {
@@ -217,16 +281,16 @@
 
     .status-message.loading {
       display: block;
-      background: #e8f0fe;
-      color: #1a73e8;
+      background: #C4DCEB;
+      color: #006890;
     }
 
     .spinner {
       display: inline-block;
       width: 14px;
       height: 14px;
-      border: 2px solid rgba(26,115,232,0.3);
-      border-top-color: #1a73e8;
+      border: 2px solid rgba(122,30,70,0.3);
+      border-top-color: #7a1e46;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: middle;
@@ -239,7 +303,7 @@
     .loading-overlay {
       text-align: center;
       padding: 40px;
-      color: #5f6368;
+      color: #54565b;
     }
 
     .loading-overlay .spinner {
@@ -258,8 +322,12 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>AI Use Documentation</h1>
-      <p>Document your AI tool usage for this assignment.</p>
+      <img src="https://episcopalhighschool.static.amais.com/EHS_Seal-339-optimized.webp"
+           alt="Episcopal High School" class="header-logo">
+      <div class="header-text">
+        <h1>AI Use Documentation</h1>
+        <p>Document your AI tool usage for this assignment.</p>
+      </div>
     </div>
 
     <div class="form-card">
@@ -329,6 +397,13 @@
           <textarea id="transcript" rows="10" required
             placeholder="Paste your complete chat transcript here..."></textarea>
           <div class="help-text">Copy and paste your full conversation with the AI tool.</div>
+        </div>
+
+        <div class="honor-pledge">
+          <h3>Honor Pledge</h3>
+          <p class="pledge-text">&ldquo;I hereby pledge that I have neither given nor received unauthorized assistance on this assignment, and will report any breach of the Honor Code of which I become aware.&rdquo;</p>
+          <label>Type your full name to sign <span class="required" style="color:#c5221f;">*</span></label>
+          <input type="text" id="honorSignature" required placeholder="Your full name">
         </div>
 
         <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
@@ -583,7 +658,7 @@
       var assignmentName = document.getElementById('assignmentValue').value;
       if (!assignmentName) {
         var input = document.getElementById('assignmentInput');
-        input.style.borderColor = '#d93025';
+        input.style.borderColor = '#c5221f';
         input.focus();
         return;
       }
@@ -609,7 +684,8 @@
         otherTool: document.getElementById('otherTool').value,
         time: document.getElementById('timeSpent').value,
         reflection: document.getElementById('reflection').value,
-        transcript: document.getElementById('transcript').value
+        transcript: document.getElementById('transcript').value,
+        honorSignature: document.getElementById('honorSignature').value
       };
 
       google.script.run

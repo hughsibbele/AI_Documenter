@@ -150,7 +150,7 @@ var COURSE_HEADERS = [
   'Timestamp', 'Student Name', 'Student Email', 'Assignment',
   'Due Date', 'AI Tool', 'Other Tool', 'Time (min)',
   'Reflection', 'Raw Transcript', 'Cleaned Transcript',
-  'AI Use Summary', 'Status'
+  'AI Use Summary', 'Status', 'Honor Pledge'
 ];
 
 /**
@@ -174,7 +174,7 @@ function initializeCourseSheet_(sheet) {
   sheet.getRange(1, 1, 1, COURSE_HEADERS.length).setFontWeight('bold');
   sheet.setFrozenRows(1);
   // Set reasonable column widths
-  var widths = [160, 150, 200, 200, 100, 120, 120, 80, 300, 300, 300, 200, 80];
+  var widths = [160, 150, 200, 200, 100, 120, 120, 80, 300, 300, 300, 200, 80, 200];
   for (var i = 0; i < widths.length; i++) {
     sheet.setColumnWidth(i + 1, widths[i]);
   }

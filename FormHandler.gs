@@ -88,12 +88,12 @@ function getFormTools() {
 
 /**
  * Handles form submission from the student form.
- * formData: {name, email, courseId, courseName, assignment, dueDate, tool, otherTool, time, reflection, transcript}
+ * formData: {name, email, courseId, courseName, assignment, dueDate, tool, otherTool, time, reflection, transcript, honorSignature}
  */
 function submitForm(formData) {
   try {
     // Validate required fields
-    var required = ['name', 'email', 'courseName', 'assignment', 'tool', 'time', 'reflection', 'transcript'];
+    var required = ['name', 'email', 'courseName', 'assignment', 'tool', 'time', 'reflection', 'transcript', 'honorSignature'];
     for (var i = 0; i < required.length; i++) {
       if (!formData[required[i]] || String(formData[required[i]]).trim() === '') {
         return { success: false, message: 'Missing required field: ' + required[i] };
@@ -117,7 +117,8 @@ function submitForm(formData) {
       formData.transcript.trim(),                   // J: Raw Transcript
       '',                                           // K: Cleaned Transcript (Gemini)
       '',                                           // L: AI Use Summary (Gemini)
-      'pending'                                     // M: Processing Status
+      'pending',                                    // M: Processing Status
+      formData.honorSignature.trim()                // N: Honor Pledge
     ];
 
     // Append to the correct course tab
