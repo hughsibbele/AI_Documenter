@@ -15,14 +15,22 @@ function callGemini(prompt, content) {
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model +
             ':generateContent?key=' + apiKey;
 
+  var generationConfig = {
+    temperature: 0.3,
+    maxOutputTokens: 8192
+  };
+
+  // Add thinking config for models that support it (Gemini 2.5+/3+)
+  var thinkingLevel = getConfigValue('Gemini Thinking Level');
+  if (thinkingLevel) {
+    generationConfig.thinkingConfig = { thinkingLevel: thinkingLevel };
+  }
+
   var payload = {
     contents: [{
       parts: [{ text: prompt + '\n\n--- STUDENT TRANSCRIPT ---\n\n' + content }]
     }],
-    generationConfig: {
-      temperature: 0.3,
-      maxOutputTokens: 8192
-    }
+    generationConfig: generationConfig
   };
 
   var response = UrlFetchApp.fetch(url, {
@@ -40,10 +48,11 @@ function callGemini(prompt, content) {
 
   var result = JSON.parse(response.getContentText());
 
-  // Extract the text from the response
+  // Extract the text from the response, filtering out thinking parts
   if (result.candidates && result.candidates.length > 0 &&
       result.candidates[0].content && result.candidates[0].content.parts) {
     return result.candidates[0].content.parts
+      .filter(function(p) { return !p.thought; })
       .map(function(p) { return p.text || ''; })
       .join('');
   }

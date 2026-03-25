@@ -37,6 +37,7 @@ function initializeConfigSheet_(sheet) {
     ['Canvas API Token', ''],
     ['Gemini API Key', ''],
     ['Gemini Model', 'gemini-2.0-flash'],
+    ['Gemini Thinking Level', ''],
     ['Gemini Prompt', getDefaultGeminiPrompt()],
     ['AI Tools', 'ChekhovBot, GothBot, Gemini, ChatGPT, Claude, Other'],
     [''],

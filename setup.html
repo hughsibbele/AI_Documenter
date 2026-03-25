@@ -170,13 +170,26 @@
     <div class="help-text">Get one free at: aistudio.google.com → Get API Key</div>
 
     <label>Gemini Model</label>
-    <select id="geminiModel">
+    <select id="geminiModel" onchange="onModelChange()">
       <option value="gemini-2.0-flash" selected>gemini-2.0-flash (fast, recommended)</option>
       <option value="gemini-2.5-flash">gemini-2.5-flash</option>
       <option value="gemini-2.0-pro">gemini-2.0-pro (higher quality, slower)</option>
       <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+      <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
     </select>
     <div class="help-text">Controls which model processes transcripts. Can be changed later in the Config tab.</div>
+
+    <div id="thinkingSection" style="display:none;">
+      <label>Thinking Level</label>
+      <select id="thinkingLevel">
+        <option value="">Off (no thinking)</option>
+        <option value="minimal">Minimal</option>
+        <option value="low" selected>Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <div class="help-text">Controls how much reasoning the model does before answering. Higher = better quality but slower and more tokens.</div>
+    </div>
 
     <button class="btn btn-test" onclick="testGemini()" id="btnTestGemini">Test Connection</button>
     <div class="status" id="geminiStatus"></div>
@@ -332,12 +345,19 @@
         .setupTestGemini(key, document.getElementById('geminiModel').value);
     }
 
+    function onModelChange() {
+      var model = document.getElementById('geminiModel').value;
+      var show = model.indexOf('gemini-2.5') === 0 || model.indexOf('gemini-3') === 0;
+      document.getElementById('thinkingSection').style.display = show ? 'block' : 'none';
+    }
+
     function saveGemini() {
       var key = document.getElementById('geminiKey').value.trim();
       var model = document.getElementById('geminiModel').value;
+      var thinkingLevel = document.getElementById('thinkingLevel').value;
       google.script.run
         .withSuccessHandler(function() { goToStep(4); })
-        .setupSaveGemini(key, model);
+        .setupSaveGemini(key, model, thinkingLevel);
     }
 
     function saveTools() {

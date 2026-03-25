@@ -64,9 +64,10 @@ function setupTestGemini(apiKey, model) {
 /**
  * Saves Gemini configuration.
  */
-function setupSaveGemini(apiKey, model) {
+function setupSaveGemini(apiKey, model, thinkingLevel) {
   setConfigValue('Gemini API Key', apiKey);
   if (model) setConfigValue('Gemini Model', model);
+  setConfigValue('Gemini Thinking Level', thinkingLevel || '');
   return { success: true };
 }
 
